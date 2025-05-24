@@ -1,16 +1,19 @@
-import { Box, filter } from '@chakra-ui/react';
+import { Box, ButtonGroup, Button, Icon, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import {
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
   flexRender,
   getFilteredRowModel,
+  getPaginationRowModel,
 } from '@tanstack/react-table';
 import DATA from '../data';
 import EditableCell from './EditableCell';
 import StatusCell from './StatusCell';
 import DateCell from './DateCell';
 import Filters from './Filters';
+import SortIcon from './icons/SortIcon';
 
 const columns = [
   {
@@ -25,6 +28,7 @@ const columns = [
     accessorKey: 'status',
     header: 'Status',
     cell: StatusCell,
+    enableSorting: false,
     enableColumnFilter: true,
     filterFn: (row, columnId, filterStatuses) => {
       if (filterStatuses.length === 0) return true;
@@ -56,6 +60,8 @@ const TaskTable = () => {
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     columnResizeMode: 'onChange',
     meta: {
       updateData: (rowIndex, columnId, value) =>
@@ -86,6 +92,15 @@ const TaskTable = () => {
             {headerGroup.headers.map((header) => (
               <Box className="th" w={header.getSize()} key={header.id}>
                 {header.column.columnDef.header}
+                {header.column.getCanSort() && (
+                  <Icon
+                    as={SortIcon}
+                    mx={3}
+                    fontSize={14}
+                    onClick={header.column.getToggleSortingHandler()}
+                  />
+                )}
+                {{ asc: ' 🔼', desc: ' 🔽' }[header.column.getIsSorted()]}
                 <Box
                   onMouseDown={header.getResizeHandler()}
                   onTouchStart={header.getResizeHandler()}
@@ -107,6 +122,24 @@ const TaskTable = () => {
           </Box>
         ))}
       </Box>
+      <br />
+      <Text mb={2}>
+        Page {table.getState().pagination.pageIndex} of {table.getPageCount()}
+      </Text>
+      <ButtonGroup size="sm" isAttached variant="outline">
+        <Button
+          onClick={() => table.previousPage()}
+          isDisabled={!table.getCanPreviousPage()}
+        >
+          {'<'}
+        </Button>
+        <Button
+          onClick={() => table.nextPage()}
+          isDisabled={!table.getCanNextPage()}
+        >
+          {'>'}
+        </Button>
+      </ButtonGroup>
     </Box>
   );
 };
