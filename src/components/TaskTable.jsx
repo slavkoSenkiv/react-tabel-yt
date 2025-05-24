@@ -9,6 +9,7 @@ import DATA from '../data';
 import EditableCell from './EditableCell';
 import StatusCell from './StatusCell';
 import DateCell from './DateCell';
+import Filters from './Filters';
 
 const columns = [
   {
@@ -30,16 +31,20 @@ const columns = [
   {
     accessorKey: 'notes',
     header: 'Notes',
-    cell: (props) => <p>{props.getValue()}</p>,
+    cell: EditableCell,
   },
 ];
 
 const TaskTable = () => {
   const [data, setData] = useState(DATA);
+  const [columnFilters, setColumnFilters] = useState([])
 
   const table = useReactTable({
     data,
     columns,
+    state: {
+       columnFilters,
+    },
     getCoreRowModel: getCoreRowModel(),
     columnResizeMode: 'onChange',
     meta: {
@@ -57,10 +62,11 @@ const TaskTable = () => {
     },
   });
 
-  console.log(table.getHeaderGroups());
+  //console.log(table.getHeaderGroups());
 
   return (
     <Box>
+      <Filters />
       <Box className="table" w={table.getTotalSize()}>
         {table.getHeaderGroups().map((headerGroup) => (
           <Box className="tr" key={headerGroup.id}>
