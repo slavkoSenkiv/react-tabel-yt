@@ -3,39 +3,69 @@ import {
   Icon,
   Popover,
   PopoverArrow,
-  PopoverBody,
   PopoverCloseButton,
   PopoverContent,
+  PopoverBody,
   PopoverTrigger,
-  Text,
   VStack,
-  Flex
+  Text,
+  Flex,
 } from '@chakra-ui/react';
-import { STATUSES } from '../data';
 import FilterIcon from './icons/FilterIcon';
-import ColorIcon from './StatusCell'
+import { STATUSES } from '../data';
+import { ColorIcon } from './StatusCell';
 
-const StatusItem = ({ status }) => (
+const StatusItem = ({ status, isActive, setColumnFilters }) => (
   <Flex
     align="center"
     cursor="pointer"
     borderRadius={5}
     fontWeight="bold"
     p={1.5}
+    bg={isActive ? 'gray.800' : 'transparent'}
     _hover={{
       bg: 'gray.800',
     }}
+    onClick={() => {
+      setColumnFilters((prev) => {
+        const statuses = prev.find((filter) => filter.id === 'status')?.value;
+        if (!statuses) {
+          return prev.concat({
+            id: 'status',
+            value: [status.id],
+          });
+        }
+
+        return prev.map((f) =>
+          f.id === 'status'
+            ? {
+                ...f,
+                value: isActive
+                  ? statuses.filter((s) => s !== status.id)
+                  : statuses.concat(status.id),
+              }
+            : f
+        );
+      });
+    }}
   >
-    <ColorIcon color={status.color} mr={3} /> {status.name}
+    <ColorIcon color={status.color} mr={3} />
     {status.name}
   </Flex>
 );
-export default function FilterPopOver() {
+
+export default function FilterPopOver({ columnFilters, setColumnFilters }) {
+  const filterStatuses =
+    columnFilters.find((f) => f.id === 'status')?.value || [];
   return (
     <Popover isLazy>
       <PopoverTrigger>
-        <Button size="sm" leftIcon={<Icon as={FilterIcon} fontSize={18} />}>
-          Filter By
+        <Button
+          size="sm"
+          color={filterStatuses.length > 0 ? 'blue.300' : ''}
+          leftIcon={<Icon as={FilterIcon} fontSize={18} />}
+        >
+          Filter
         </Button>
       </PopoverTrigger>
       <PopoverContent>
@@ -50,7 +80,12 @@ export default function FilterPopOver() {
           </Text>
           <VStack align="flex-start" spacing={1}>
             {STATUSES.map((status) => (
-              <StatusItem status={status} key={status.id} />
+              <StatusItem
+                status={status}
+                isActive={filterStatuses.includes(status.id)}
+                setColumnFilters={setColumnFilters}
+                key={status.id}
+              />
             ))}
           </VStack>
         </PopoverBody>

@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, filter } from '@chakra-ui/react';
 import { useState } from 'react';
 import {
   getCoreRowModel,
@@ -18,11 +18,19 @@ const columns = [
     header: 'Task',
     size: 225,
     cell: EditableCell,
+    enableColumnFilter: true,
+    filterFn: 'includeString',
   },
   {
     accessorKey: 'status',
     header: 'Status',
     cell: StatusCell,
+    enableColumnFilter: true,
+    filterFn: (row, columnId, filterStatuses) => {
+      if (filterStatuses.length === 0) return true;
+      const status = row.getValue(columnId);
+      return filterStatuses.includes(status?.id);
+    },
   },
   {
     accessorKey: 'due',
