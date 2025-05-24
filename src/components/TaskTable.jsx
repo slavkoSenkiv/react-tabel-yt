@@ -4,6 +4,7 @@ import {
   getCoreRowModel,
   useReactTable,
   flexRender,
+  getFilteredRowModel,
 } from '@tanstack/react-table';
 import DATA from '../data';
 import EditableCell from './EditableCell';
@@ -37,15 +38,16 @@ const columns = [
 
 const TaskTable = () => {
   const [data, setData] = useState(DATA);
-  const [columnFilters, setColumnFilters] = useState([])
+  const [columnFilters, setColumnFilters] = useState([]);
 
   const table = useReactTable({
     data,
     columns,
     state: {
-       columnFilters,
+      columnFilters,
     },
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     columnResizeMode: 'onChange',
     meta: {
       updateData: (rowIndex, columnId, value) =>
@@ -62,11 +64,14 @@ const TaskTable = () => {
     },
   });
 
-  //console.log(table.getHeaderGroups());
+  console.log(columnFilters);
 
   return (
     <Box>
-      <Filters />
+      <Filters
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
+      />
       <Box className="table" w={table.getTotalSize()}>
         {table.getHeaderGroups().map((headerGroup) => (
           <Box className="tr" key={headerGroup.id}>

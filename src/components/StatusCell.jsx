@@ -1,13 +1,13 @@
 import { Box, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { STATUSES } from '../data';
 
-const ColorIcon = ({ color, ...props }) => (
+export const ColorIcon = ({ color, ...props }) => (
   <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
 );
 
-const StatusCell = ({ getValue, row, column, table }) => {
+const StatusCell = ({ getValue = () => null, row, column, table }) => {
   const { name, color } = getValue() || {};
-  const { updateData } = table.options.meta;
+  const updateData = table?.options?.meta?.updateData;
 
   return (
     <Menu isLazy offset={[0, 0]} flip={false} autoSelect={false}>
@@ -22,9 +22,7 @@ const StatusCell = ({ getValue, row, column, table }) => {
         {name}
       </MenuButton>
       <MenuList>
-        <MenuItem
-          onClick={() => updateData(row.index, column.id, null)}
-        >
+        <MenuItem onClick={() => updateData?.(row.index, column.id, null)}>
           <ColorIcon color={'red.400'} mr={3} /> None
         </MenuItem>
         {STATUSES.map((status) => (
