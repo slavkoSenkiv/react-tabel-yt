@@ -7,6 +7,8 @@ import {
 } from '@tanstack/react-table';
 import DATA from '../data';
 import EditableCell from './EditableCell';
+import StatusCell from './StatusCell';
+import DateCell from './DateCell';
 
 const columns = [
   {
@@ -18,12 +20,12 @@ const columns = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: (props) => <p>{props.getValue()?.name}</p>,
+    cell: StatusCell,
   },
   {
     accessorKey: 'due',
     header: 'Due',
-    cell: (props) => <p>{props.getValue()?.toLocaleTimeString()}</p>,
+    cell: DateCell,
   },
   {
     accessorKey: 'notes',
@@ -39,18 +41,20 @@ const TaskTable = () => {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    columnResizeMode: "onChange",
+    columnResizeMode: 'onChange',
     meta: {
-      updateData: (rowIndex, columnId, value) = setData(
-        prev => prev.map(
-          (row, index) => 
-            index === rowIndex ? {
-              ...prev[rowIndex],
-              [columnId] : value
-            }: row
-        )
-      )
-    }
+      updateData: (rowIndex, columnId, value) =>
+        setData((prev) =>
+          prev.map((row, index) =>
+            index === rowIndex
+              ? {
+                  ...prev[rowIndex],
+                  [columnId]: value,
+                }
+              : row
+          )
+        ),
+    },
   });
 
   console.log(table.getHeaderGroups());
@@ -64,8 +68,8 @@ const TaskTable = () => {
               <Box className="th" w={header.getSize()} key={header.id}>
                 {header.column.columnDef.header}
                 <Box
-                onMouseDown={header.getResizeHandler()} 
-                onTouchStart={header.getResizeHandler()}
+                  onMouseDown={header.getResizeHandler()}
+                  onTouchStart={header.getResizeHandler()}
                   className={`resizer ${
                     header.column.getIsResizing() ? 'isResizing' : ''
                   }`}
