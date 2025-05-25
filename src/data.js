@@ -1,3 +1,4 @@
+// src\data.js
 const STATUS_ON_DECK = { id: 1, name: "On Deck", color: "blue.300" };
 const STATUS_IN_PROGRESS = {
   id: 2,

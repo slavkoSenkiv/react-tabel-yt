@@ -1,3 +1,4 @@
+// src\components\FilterPopOver.jsx
 import {
   Button,
   Icon,
@@ -15,7 +16,7 @@ import FilterIcon from './icons/FilterIcon';
 import { STATUSES } from '../data';
 import { ColorIcon } from './StatusCell';
 
-const StatusItem = ({ status, isActive, setColumnFilters }) => (
+const StatusItem = ({ status, isActive, table }) => (
   <Flex
     align="center"
     cursor="pointer"
@@ -27,25 +28,20 @@ const StatusItem = ({ status, isActive, setColumnFilters }) => (
       bg: 'gray.800',
     }}
     onClick={() => {
-      setColumnFilters((prev) => {
-        const statuses = prev.find((filter) => filter.id === 'status')?.value;
-        if (!statuses) {
-          return prev.concat({
-            id: 'status',
-            value: [status.id],
-          });
-        }
+      table.setColumnFilters((prev) => {
+        const currentStatusNames =
+          prev.find((f) => f.id === 'status')?.value || [];
 
-        return prev.map((f) =>
-          f.id === 'status'
-            ? {
-                ...f,
-                value: isActive
-                  ? statuses.filter((s) => s !== status.id)
-                  : statuses.concat(status.id),
-              }
-            : f
-        );
+        const updatedStatuses = isActive
+          ? currentStatusNames.filter((name) => name !== status.name)
+          : [...currentStatusNames, status.name];
+
+        return prev
+          .filter((f) => f.id !== 'status')
+          .concat({
+            id: 'status',
+            value: updatedStatuses,
+          });
       });
     }}
   >
@@ -54,9 +50,9 @@ const StatusItem = ({ status, isActive, setColumnFilters }) => (
   </Flex>
 );
 
-export default function FilterPopOver({ columnFilters, setColumnFilters }) {
+export default function FilterPopOver({ table }) {
   const filterStatuses =
-    columnFilters.find((f) => f.id === 'status')?.value || [];
+    table.getState().columnFilters.find((f) => f.id === 'status')?.value || [];
   return (
     <Popover isLazy>
       <PopoverTrigger>
@@ -81,10 +77,10 @@ export default function FilterPopOver({ columnFilters, setColumnFilters }) {
           <VStack align="flex-start" spacing={1}>
             {STATUSES.map((status) => (
               <StatusItem
+              key={status.id}
                 status={status}
-                isActive={filterStatuses.includes(status.id)}
-                setColumnFilters={setColumnFilters}
-                key={status.id}
+                isActive={filterStatuses.includes(status.name)}
+                table={table}
               />
             ))}
           </VStack>

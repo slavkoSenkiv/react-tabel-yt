@@ -1,3 +1,4 @@
+// src\components\Filters.jsx
 import {
   HStack,
   Icon,
@@ -8,19 +9,20 @@ import {
 import SearchIcon from './icons/SearchIcon';
 import FilterPopOver from './FilterPopOver';
 
-export default function Filters({ columnFilters, setColumnFilters }) {
-  const taskName =
-    (columnFilters || []).find((f) => f.id === 'task')?.value || '';
+export default function Filters({ table }) {
+  const columnFilters = table.getState().columnFilters;
+  const taskName = columnFilters.find((f) => f.id === 'task')?.value || '';
 
-  const onFilterChange = (id, value) =>
-    setColumnFilters((prev) =>
-      prev
-        .filter((f) => f.id !== id)
-        .concat({
-          id,
-          value,
-        })
-    );
+  const onFilterChange = (id, value) => {
+    table.setColumnFilters((prev) =>
+    prev
+      .filter((f) => f.id !== id)
+      .concat({
+        id,
+        value,
+      })
+  );
+  };
 
   return (
     <HStack mb={6} spacing={3}>
@@ -37,10 +39,7 @@ export default function Filters({ columnFilters, setColumnFilters }) {
           onChange={(e) => onFilterChange('task', e.target.value)}
         />
       </InputGroup>
-      <FilterPopOver
-        columnFilters={columnFilters}
-        setColumnFilters={setColumnFilters}
-      />
+      <FilterPopOver table={table} />
     </HStack>
   );
 }

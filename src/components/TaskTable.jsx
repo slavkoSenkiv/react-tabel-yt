@@ -1,5 +1,6 @@
+//src\components\TaskTable.jsx
 import { Box, ButtonGroup, Button, Icon, Text } from '@chakra-ui/react';
-import { useState } from 'react';
+import {useMemo, useState } from 'react';
 import {
   getCoreRowModel,
   getSortedRowModel,
@@ -9,55 +10,26 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 import DATA from '../data';
-import EditableCell from './EditableCell';
-import StatusCell from './StatusCell';
-import DateCell from './DateCell';
 import Filters from './Filters';
 import SortIcon from './icons/SortIcon';
-
-const columns = [
-  {
-    accessorKey: 'task',
-    header: 'Task',
-    size: 225,
-    cell: EditableCell,
-    enableColumnFilter: true,
-    filterFn: 'includeString',
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: StatusCell,
-    enableSorting: false,
-    enableColumnFilter: true,
-    filterFn: (row, columnId, filterStatuses) => {
-      if (filterStatuses.length === 0) return true;
-      const status = row.getValue(columnId);
-      return filterStatuses.includes(status?.id);
-    },
-  },
-  {
-    accessorKey: 'due',
-    header: 'Due',
-    cell: DateCell,
-  },
-  {
-    accessorKey: 'notes',
-    header: 'Notes',
-    cell: EditableCell,
-  },
-];
+import { getColumns } from '../columns';
 
 const TaskTable = () => {
   const [data, setData] = useState(DATA);
-  const [columnFilters, setColumnFilters] = useState([]);
+
+  const updateData = (rowIndex, columnId, value) => {
+    setData((prev) => {
+      const newData = [...prev];
+      newData[rowIndex] = { ...newData[rowIndex], [columnId]: value };
+      return newData;
+    });
+  };
+
+  const columns = useMemo(() => getColumns(updateData), [updateData]);
 
   const table = useReactTable({
     data,
     columns,
-    state: {
-      columnFilters,
-    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -76,16 +48,22 @@ const TaskTable = () => {
           )
         ),
     },
+    filterFns: {
+      includeString: (row, columnId, filterValue) =>
+        row
+          .getValue(columnId)
+          ?.toLowerCase()
+          .includes(filterValue.toLowerCase()),
+      equalsString: (row, columnId, filterValue) => {
+        const statusName = row.getValue(columnId)?.name ?? '';
+        return filterValue.includes(statusName);
+      },
+    },
   });
-
-  console.log(columnFilters);
 
   return (
     <Box>
-      <Filters
-        columnFilters={columnFilters}
-        setColumnFilters={setColumnFilters}
-      />
+      <Filters table={table} />
       <Box className="table" w={table.getTotalSize()}>
         {table.getHeaderGroups().map((headerGroup) => (
           <Box className="tr" key={headerGroup.id}>
