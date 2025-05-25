@@ -1,3 +1,4 @@
+// src\components\DateCell.jsx
 import { Box, Center, Icon } from '@chakra-ui/react';
 import { forwardRef } from 'react';
 import DatePicker from 'react-datepicker';
@@ -28,9 +29,8 @@ const DateCustomInput = forwardRef(({ value, onClick, clearDate }, ref) => (
   </Center>
 ));
 
-const DateCell = ({ getValue, row, column, table }) => {
+const DateCell = ({ getValue, row, column, updateData }) => {
   const date = getValue();
-  const { updateData } = table.options.meta;
   return (
     <DatePicker
       wrapperClassName="date-wrapper"
@@ -45,5 +45,6 @@ const DateCell = ({ getValue, row, column, table }) => {
     />
   );
 };
+
 
 export default DateCell;

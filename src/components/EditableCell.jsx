@@ -1,3 +1,4 @@
+// src\components\EditableCell.jsx
 import { Input } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
